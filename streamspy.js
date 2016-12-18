@@ -5,12 +5,15 @@
 'use strict';
     const INTERVAL_TIME = 10000; // TODO: make appropriate setting in settings page
     const NOTIFICATION_NAME = 'streamNotification';
-    let intervalId = null;
+    let intervalId;
+    let channels;
+    let streams;
 
-    Twitch.auth().then(response => {
-        console.log('Авторизация пройдена успешно!')
+    Twitch.getFollowingList().then(response =>  {
+        channels = response.follows.map(ch => ch.channel.name);
+        console.log('Полученные каналы:', channels.join(", "));
         intervalId = setInterval(performCheckingRequest, INTERVAL_TIME);
-    }).fail(response => console.log("Ошибка при авторизации клиента", response.statusText, response.status));
+    }).catch(response => console.log("Ошибка при обработке запроса на сервере Twitch", response.statusText, response.status));
 
     /**
      * Выполняет запрос на проверку наличия стримов.
@@ -19,23 +22,23 @@
      * 
      */
     function performCheckingRequest() {
-        $.get('https://www.twitch.tv/directory/following/live') // TODO: use twitch api
-         .then(response => {
-             if (response) {
+        //$.get('https://www.twitch.tv/directory/following/live') // TODO: use twitch api
+        Twitch.getStreamList(channels.join(",")).then(response => {
+            if (response) {
                 console.log(response);
                 browser.notifications.create(NOTIFICATION_NAME, {
                     type:    'basic',
                     title:   'The stream is online!',
                     message: 'Oh my actual God!'
                 }).then(clearNotification);
-             }
-         }).fail(() => { 
+            }
+        }).fail(() => { 
             browser.notifications.create(NOTIFICATION_NAME, {
                 type:    'basic',
                 title:   'The error is real!',
                 message: 'Oh my actual God!!!11'
             }).then(clearNotification);
-         });
+       });
     }
 
     /**
