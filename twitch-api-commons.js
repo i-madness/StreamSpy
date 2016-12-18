@@ -1,32 +1,30 @@
 var Twitch = (function() {
-    /**
-     * Генерирует токен
-     */
-    function token() {
-        return (Math.random()*1000).toFixed(0);
+    const USER  = 'world_enslaver'; // пока используем не-кастомного юзера
+    const PARAMS = {
+        'client_id' : '<CLIENT_ID>',
+        'state' : (Math.random()*1000).toFixed(0),
+        'scope' : 'user_subscriptions',
+        'redirect_uri'  : 'localhost',
+        'response_type' : 'code',
     }
+
+    $.ajaxSetup({
+        beforeSend : request => request.setRequestHeader('Client-ID', PARAMS.client_id)
+    });
 
     return {
         /**
          * Авторизация на Твиче
-         * (что за redirect_uri? что за scope??? WTF)
          */
         auth : function() {
-            let requestParams = {
-                'response_type' : 'code',
-                'client_id' : '0ub9wh6r9493nk9hd2aqsfnjioknsw',
-                'redirect_uri' : 'localhost',
-                'state' : token(),
-                'scope' : ''
-            };
-            $.get('https://api.twitch.tv/kraken/oauth2/authorize', requestParams);
+            return $.get('https://api.twitch.tv/kraken/oauth2/authorize', PARAMS);
         },
 
         /**
          * Получает список из подписок текущего пользователя
          */
-        getSubscriptionList : function() {
-
+        getFollowingList : function() {
+            return $.get('https://api.twitch.tv/kraken/users/'+ USER +'/follows/channels')
         }
     }
 }())
