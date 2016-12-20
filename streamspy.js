@@ -15,7 +15,7 @@
     Twitch.getFollowingList().then(response =>  {
         channels = response.follows.map(ch => new Twitch.Channel(ch));
         channelNames = channels.map(ch => ch.name);
-        window['pups'] = channelsAsString = channelNames.join(',');
+        channelsAsString = channelNames.join(',');
         console.log('Полученные каналы:', channelsAsString);
         Twitch.getStreamList(channelsAsString).then(response => {
             console.debug(response.streams);
@@ -27,17 +27,21 @@
                         onlineStreamers.push(ch);
                     }
                 }
-                console.debug(onlineStreamers)
-                let notification = {
-                    type : 'list',
-                    items : onlineStreamers.map(streamer => streamer.asNotificationItem()),
-                    title : 'whatever'
-                }
-                browser.notifications.create('HUGENOTIFICATION', notification);
+                console.debug('streamers online', onlineStreamers)
+                onlineStreamers.forEach((streamer, index) => {
+                    setTimeout(() => {
+                        browser.notifications.create(streamer.name, {
+                            type : 'basic',
+                            title : streamer.name,
+                            message : streamer.status,
+                            iconUrl : streamer.logo
+                        });
+                    }, index * 500);
+                })
             }
 
         });
-        intervalId = setInterval(performCheckingRequest, INTERVAL_TIME);
+        //intervalId = setInterval(performCheckingRequest, INTERVAL_TIME);
     }).catch(response => console.log("Ошибка при обработке запроса на сервере Twitch", response.statusText, response.status));
 
     /**
