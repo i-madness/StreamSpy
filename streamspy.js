@@ -7,11 +7,36 @@
     const NOTIFICATION_NAME = 'streamNotification';
     let intervalId;
     let channels;
+    let channelNames;
+    let channelsAsString;
     let streams;
+    let onlineStreamers = [];
 
     Twitch.getFollowingList().then(response =>  {
-        channels = response.follows.map(ch => ch.channel.name);
-        console.log('Полученные каналы:', channels.join(", "));
+        channels = response.follows.map(ch => new Twitch.Channel(ch));
+        channelNames = channels.map(ch => ch.name);
+        window['pups'] = channelsAsString = channelNames.join(',');
+        console.log('Полученные каналы:', channelsAsString);
+        Twitch.getStreamList(channelsAsString).then(response => {
+            console.debug(response.streams);
+            if (response.streams.length > 0) {
+                let streamingChannels = response.streams.map(ch => ch.channel.name);            
+                for (let ch of channels) {
+                    if (streamingChannels.includes(ch.name)) {
+                        ch.isOnline = true;
+                        onlineStreamers.push(ch);
+                    }
+                }
+                console.debug(onlineStreamers)
+                let notification = {
+                    type : 'list',
+                    items : onlineStreamers.map(streamer => streamer.asNotificationItem()),
+                    title : 'whatever'
+                }
+                browser.notifications.create('HUGENOTIFICATION', notification);
+            }
+
+        });
         intervalId = setInterval(performCheckingRequest, INTERVAL_TIME);
     }).catch(response => console.log("Ошибка при обработке запроса на сервере Twitch", response.statusText, response.status));
 
@@ -23,7 +48,7 @@
      */
     function performCheckingRequest() {
         //$.get('https://www.twitch.tv/directory/following/live') // TODO: use twitch api
-        Twitch.getStreamList(channels.join(",")).then(response => {
+        Twitch.getStreamList(channelsAsString).then(response => {
             if (response) {
                 console.log(response);
                 browser.notifications.create(NOTIFICATION_NAME, {
