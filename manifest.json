@@ -1,4 +1,4 @@
-{
+﻿{
 
   "manifest_version": 2,
   "author": "Валерий Романов",
@@ -12,6 +12,10 @@
     "scripts": ["jquery-3.1.1.min.js", "twitch-api-commons.js", "streamspy.js"]
   },
 
-  "permissions": ["notifications"]
+  "options_ui": {
+    "page": "options.html"
+  },
+
+  "permissions": ["notifications", "storage"]
 
 }
