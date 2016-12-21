@@ -1,16 +1,18 @@
 /**
  * Ядро функционала оповещений
  */
-(function($, browser, Twitch) {
+var execute = function ($, browser, Twitch) {
 'use strict';
-    const INTERVAL_TIME = 10000; // TODO: make appropriate setting in settings page
     const NOTIFICATION_NAME = 'streamNotification';
+    let intervalTime;
     let intervalId;
     let channels;
     let channelNames;
     let channelsAsString;
     let streams;
     let onlineStreamers = [];
+
+    browser.storage.local.get().then(value => intervalTime = value.checkDuration);
 
     Twitch.getFollowingList().then(response =>  {
         channels = response.follows.map(ch => new Twitch.Channel(ch));
@@ -41,7 +43,7 @@
             }
 
         });
-        //intervalId = setInterval(performCheckingRequest, INTERVAL_TIME);
+        //intervalId = setInterval(performCheckingRequest, intervalTime);
     }).catch(response => console.log("Ошибка при обработке запроса на сервере Twitch", response.statusText, response.status));
 
     /**
@@ -76,4 +78,5 @@
     function clearNotification() {
         setTimeout(() => browser.notifications.clear(NOTIFICATION_NAME), 3000);
     }
-} (jQuery, browser, Twitch))
+} 
+execute(jQuery, browser, Twitch)
