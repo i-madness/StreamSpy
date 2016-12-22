@@ -13,7 +13,7 @@ var execute = function ($, browser) {
     let onlineStreamers = [];
 
     browser.notifications.onClicked.addListener(function (notificationId) {
-        browser.tabs.create({url : 'https://twitch.tv/' + notificationId});
+        browser.tabs.create({ url: 'https://twitch.tv/' + notificationId });
     });
 
     Twitch.getFollowingList().then(response => {
@@ -51,7 +51,7 @@ var execute = function ($, browser) {
             }).then(
             options => {
                 console.log(options);
-                //intervalId = setInterval(performCheckingRequest, options.checkDuration);
+                intervalId = setInterval(performCheckingRequest, options.checkDuration);
             }
             );
         //
@@ -59,20 +59,24 @@ var execute = function ($, browser) {
 
     /**
      * Выполняет запрос на проверку наличия стримов.
-     * TODO: сделать загрузку списка подписок и проверять каждый из них по отдельности. При этом
-     * сделать некий буфер тех стримов, которые уже начались
-     * 
      */
     function performCheckingRequest() {
         Twitch.getStreamList(channelsAsString).then(response => {
-            if (response) {
-                console.log(response);
-                browser.notifications.create(NOTIFICATION_NAME, {
-                    type: 'basic',
-                    title: 'The stream is online!',
-                    message: 'Oh my actual God!'
-                }).then(clearNotification);
-            }
+            var onlineStreamerNames = onlineStreamers.map(s => s.name);
+            response.streams.forEach(stream => {
+                //console.log(stream);
+                let ch = new Twitch.Channel(stream);
+                if (!onlineStreamerNames.includes(ch.name)) {
+                    browser.notifications.create(ch.name, {
+                        type: 'basic',
+                        title: ch.name,
+                        message: ch.status,
+                        iconUrl: ch.logo
+                    }).then(notification => clearNotification(ch.name));
+                    onlineStreamers.push(ch);
+                }
+            });
+
         }).fail(() => {
             browser.notifications.create(NOTIFICATION_NAME, {
                 type: 'basic',
@@ -85,8 +89,8 @@ var execute = function ($, browser) {
     /**
      * Удаляет оповещение
      */
-    function clearNotification() {
-        setTimeout(() => browser.notifications.clear(NOTIFICATION_NAME), 3000);
+    function clearNotification(streamerName) {
+        setTimeout(() => browser.notifications.clear(streamerName), 3000);
     }
 }
 execute(jQuery, browser);
