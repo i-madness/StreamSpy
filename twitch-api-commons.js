@@ -21,6 +21,7 @@ var Twitch = (function ($, browser) {
             constructor(channel) {
                 if (typeof channel === 'object') {
                     this.name = channel.channel.name;
+                    this.url  = channel.channel.url;
                     this.logo = channel.channel.logo;
                     this.status = channel.channel.status;
                 }
