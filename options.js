@@ -1,4 +1,4 @@
-(function (browser) {
+(function ($, browser) {
     function saveOptions(e) {
         e.preventDefault();
         let duration = parseInt($('#checkDuration').val());
@@ -12,8 +12,14 @@
             userName: userName
         });
 
+        browser.storage.local.get('intervalId').then(obj => {
+            clearInterval(obj.intervalId);
+            execute($, browser);
+        });
+
+        
         //console.log(browser.storage.local.get("checkDuration"));
     }
 
     $("form").submit(saveOptions);
-} (browser))
+} (jQuery, browser))
