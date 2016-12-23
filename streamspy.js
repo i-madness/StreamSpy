@@ -49,11 +49,10 @@ var execute = function ($, browser) {
                 // получаем интервал проверки наличия новых стримов как ещё один Promise (кто вообще придумал такой browser.storage?)
                 return browser.storage.local.get('checkDuration');
             }).then(
-                options => {
-                    console.log(options);
-                    intervalId = setInterval(performCheckingRequest, options.checkDuration);
-                    browser.storage.local.set({'intervalId' : intervalId});
-                }
+            options => {
+                console.log(options);
+                intervalId = setInterval(performCheckingRequest, options.checkDuration);
+            }
             );
         //
     }).catch(response => console.log("Ошибка при обработке запроса на сервере Twitch", response.statusText, response.status));
@@ -65,7 +64,7 @@ var execute = function ($, browser) {
         Twitch.getStreamList(channelsAsString).then(response => {
             var onlineStreamerNames = onlineStreamers.map(s => s.name);
             response.streams.forEach(stream => {
-                console.log(stream);
+                //console.log(stream);
                 let ch = new Twitch.Channel(stream);
                 if (!onlineStreamerNames.includes(ch.name)) {
                     browser.notifications.create(ch.name, {
@@ -94,4 +93,4 @@ var execute = function ($, browser) {
         setTimeout(() => browser.notifications.clear(streamerName), 3000);
     }
 }
-execute(jQuery, browser); // TODO: сделать адекватную поддержку хрома
+execute(jQuery, browser);
