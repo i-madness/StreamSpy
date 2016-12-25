@@ -24,6 +24,7 @@ var Twitch = (function ($, browser) {
                     this.url  = channel.channel.url;
                     this.logo = channel.channel.logo;
                     this.status = channel.channel.status;
+                    this.isTracked = true;
                 }
                 this.isOnline = false;
             }
