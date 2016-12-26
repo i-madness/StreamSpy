@@ -38,7 +38,10 @@
             $("#followingList").empty();
             channels = response.follows.map(ch => new Twitch.Channel(ch));
             for (let ch of channels) {
-                $('#followingList').append('<p>' + ch.name + '<p>');
+                let row = $('<tr/>');
+                $('<td>').html(ch.name).appendTo(row);
+                // чота ещё
+                $('#followingList').append(row);
             }
         });
     }
