@@ -4,12 +4,10 @@
 var execute = function ($, browser) {
     'use strict';
     const NOTIFICATION_NAME = 'streamNotification';
-    let intervalTime;
     let intervalId;
     let channels;
     let channelNames;
     let channelsAsString;
-    let streams;
     let onlineStreamers = [];
 
     browser.notifications.onClicked.addListener(function (notificationId) {
@@ -48,12 +46,10 @@ var execute = function ($, browser) {
                 }
                 // получаем интервал проверки наличия новых стримов как ещё один Promise (кто вообще придумал такой browser.storage?)
                 return browser.storage.local.get('checkDuration');
-            }).then(
-            options => {
+            }).then(options => {
                 console.log(options);
                 intervalId = setInterval(performCheckingRequest, options.checkDuration);
-            }
-            );
+            });
         //
     }).catch(response => console.log("Ошибка при обработке запроса на сервере Twitch", response.statusText, response.status));
 
@@ -82,7 +78,7 @@ var execute = function ($, browser) {
                 type: 'basic',
                 title: 'The error is real!',
                 message: 'Oh my actual God!!!11'
-            }).then(clearNotification);
+            }).then(() => clearNotification(NOTIFICATION_NAME));
         });
     }
 
