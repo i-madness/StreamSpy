@@ -3,6 +3,9 @@
     var channels;
     var uncheckedChannels;
 
+    /**
+     * Сохранение настроек
+     */
     function saveOptions(e) {
         e.preventDefault();
         let durationValue = parseInt($('#checkDuration').val());
@@ -20,6 +23,31 @@
         displayFollowingList();
     }
 
+    /**
+     * Отображаем список подписок в настройках.
+     */
+    function displayFollowingList() {
+        Twitch.getFollowingList().then(response => {
+            $("#followingList").empty();
+            channels = response.follows.map(ch => new Twitch.Channel(ch));
+            for (let ch of channels) {
+                var isChecked = "checked";
+                isChecked = uncheckedChannels.includes(ch.name) ? "" : "checked";
+                let row = $('<tr/>');
+                $('<td>').html('<div class="q-container">' + ch.name + '</div>').appendTo(row);
+                $('<td>').html('<div class="q-container">' + ch.status + '</div>').appendTo(row);
+                // OH SHI~~
+                $('<td>').html('<div class="q-container">' +
+                    '<div class="main" id="' + ch.name + '">' +
+                    '<input type="checkbox" id="hidcheck_' + ch.name + '" class="hidcheck" hidden ' + isChecked + '/>' +
+                    '<label class="capsule" for="hidcheck_' + ch.name + '" id="capsule-id">' +
+                    '<div class="circle"></div><div class="text-signs"><span id="on"></span></div></label></div></div>').appendTo(row);
+                // чота ещё
+                $('#followingList').append(row);
+            }
+        });
+    }
+
     browser.storage.local.get('userName').then(result => {
         $('#userName').val(result.userName);
     });
@@ -33,35 +61,13 @@
         displayFollowingList();
     });
 
-    /**
-     * Отображаем список подписок в настройках.
-     */
-    function displayFollowingList() {
-        Twitch.getFollowingList().then(response => {
-            $("#followingList").empty();
-            channels = response.follows.map(ch => new Twitch.Channel(ch));
-            for (let ch of channels) {
-                var isChecked = "checked";
-                isChecked = uncheckedChannels.includes(ch.name)? "": "checked";
-                let row = $('<tr/>');
-                $('<td>').html('<div class="q-container">' + ch.name + '</div>').appendTo(row);
-                $('<td>').html('<div class="q-container">' + ch.status + '</div>').appendTo(row);
-                // OH SHI~~
-                $('<td>').html('<div class="q-container">'+ 
-                    '<div class="main" id="' + ch.name + '">' + 
-                        '<input type="checkbox" id="hidcheck_' + ch.name + '" class="hidcheck" hidden ' + isChecked + '/>' + 
-                        '<label class="capsule" for="hidcheck_' + ch.name + '" id="capsule-id">' + 
-                        '<div class="circle"></div><div class="text-signs"><span id="on"></span></div></label></div></div>').appendTo(row);
-                // чота ещё
-                $('#followingList').append(row);
-            }
-        });
-    }
-
-    $('body').on('click', '.main', function() {
+    $('body').on('click', '.main', function (event) {
+        if (event.target.tagName != 'DIV') {
+            return;
+        }
         var channelName = $(this).attr('id');//.replace('hidcheck_', '');
         for (var i = 0; i < uncheckedChannels.length; i++) {
-    console.log(uncheckedChannels[i]);
+            console.log(uncheckedChannels[i]);
             if (uncheckedChannels[i] == channelName) {
                 delete uncheckedChannels[i];
                 return;
@@ -74,4 +80,5 @@
     });
 
     $("form").submit(saveOptions);
-} ($, browser))
+
+} ($, browser));
