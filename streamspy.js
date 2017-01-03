@@ -7,6 +7,7 @@ var execute = function ($, browser) {
     let intervalId;
     let channels;
     let channelNames;
+    let uncheckedChannels;
     let channelsAsString;
     let onlineStreamers = [];
 
@@ -14,7 +15,11 @@ var execute = function ($, browser) {
         browser.tabs.create({ url: 'https://twitch.tv/' + notificationId });
     });
 
-    Twitch.getFollowingList().then(response => {
+    let promises = [ Twitch.getFollowingList(), fetchListOfUnchekedChannels() ]; // делаем подобную вещь, дабы избежать ещё большей кучи вложенных промисов
+
+    Promise.all(promises).then(values => {
+        let response = values[0];
+        uncheckedChannels = values[1].uncheckedChannels;
         channels = response.follows.map(ch => new Twitch.Channel(ch));
         channelNames = channels.map(ch => ch.name);
         channelsAsString = channelNames.join(',');
@@ -24,7 +29,7 @@ var execute = function ($, browser) {
             response => {
                 console.debug(response.streams);
                 if (response.streams.length > 0) {
-                    let streamingChannels = response.streams.map(ch => ch.channel.name);
+                    let streamingChannels = response.streams.map(ch => ch.channel.name).filter(ch => !uncheckedChannels.includes(ch));
                     for (let ch of channels) {
                         if (streamingChannels.includes(ch.name)) {
                             ch.isOnline = true;
@@ -52,6 +57,9 @@ var execute = function ($, browser) {
             });
         //
     }).catch(response => console.log("Ошибка при обработке запроса на сервере Twitch", response.statusText, response.status));
+    /*Twitch.getFollowingList().then(response => {
+
+    })*/
 
     /**
      * Выполняет запрос на проверку наличия стримов.
@@ -62,7 +70,7 @@ var execute = function ($, browser) {
             response.streams.forEach(stream => {
                 //console.log(stream);
                 let ch = new Twitch.Channel(stream);
-                if (!onlineStreamerNames.includes(ch.name)) {
+                if (!onlineStreamerNames.includes(ch.name) && !uncheckedChannels.includes(ch.name)) {
                     browser.notifications.create(ch.name, {
                         type: 'basic',
                         title: ch.name,
@@ -72,7 +80,6 @@ var execute = function ($, browser) {
                     onlineStreamers.push(ch);
                 }
             });
-
         }).fail(() => {
             browser.notifications.create(NOTIFICATION_NAME, {
                 type: 'basic',
@@ -87,6 +94,14 @@ var execute = function ($, browser) {
      */
     function clearNotification(streamerName) {
         setTimeout(() => browser.notifications.clear(streamerName), 3000);
+    }
+
+    /**
+     * Достаёт из local storage список непроверяемых каналов
+     * @returns {Promise}
+     */
+    function fetchListOfUnchekedChannels() {
+        return browser.storage.local.get('uncheckedChannels');
     }
 }
 execute(jQuery, browser);

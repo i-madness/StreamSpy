@@ -67,10 +67,6 @@ label.capsule {
     animation-timing-function:ease-out;
 }
 
-.hidcheck:checked ~ .capsule .text-signs #on:before {
-    /*content: "ON" */
-}
-
 .hidcheck:not(:checked) ~ .capsule .text-signs #on {
     margin-left: 12px;
     animation-name:toggle-off;
@@ -79,9 +75,9 @@ label.capsule {
     animation-timing-function:ease-out;
 }
 
-.hidcheck:not(:checked) ~ .capsule .text-signs #on:after {
-   /*  content: "OFF" */
-}
+/*.hidcheck:not(:checked) ~ .capsule .text-signs #on:after {
+    content: "OFF" 
+}*/
 
 @-webkit-keyframes toggle-on {
     0% {margin-left: 0px;}
