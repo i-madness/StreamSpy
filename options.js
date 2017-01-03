@@ -37,7 +37,7 @@
                 $('<td>').html('<div class="q-container"><a href="'+'https://twitch.tv/' + ch.name + '" target="_blank"><img src="'+ 
                     ch.logo +'" class="img-ch-logo"/></a></div>').appendTo(row);
                 $('<td>').html('<div class="q-container">' + '<a href="'+'https://twitch.tv/' + ch.name + '" target="_blank">' + ch.name + '</a></div>').appendTo(row);
-                $('<td>').html('<div class="q-container">' + ch.status + '</div>').appendTo(row);
+                $('<td>').html('<div class="q-container">' + ch.game + '</div>').appendTo(row);
                 $('<td>').html('<div class="q-container">' +
                     '<div class="main" id="' + ch.name + '">' +
                         '<input type="checkbox" id="hidcheck_' + ch.name + '" class="hidcheck" hidden ' + isChecked + '/>' +

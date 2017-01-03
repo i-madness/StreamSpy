@@ -15,7 +15,8 @@ var execute = function ($, browser) {
         browser.tabs.create({ url: 'https://twitch.tv/' + notificationId });
     });
 
-    let promises = [ Twitch.getFollowingList(), fetchListOfUnchekedChannels() ]; // делаем подобную вещь, дабы избежать ещё большей кучи вложенных промисов
+    // избегаем большой кучи вложенных обещаний
+    let promises = [ Twitch.getFollowingList(), fetchListOfUnchekedChannels() ]; 
 
     Promise.all(promises).then(values => {
         let response = values[0];
@@ -45,7 +46,7 @@ var execute = function ($, browser) {
                                 title: streamer.name,
                                 message: streamer.status,
                                 iconUrl: streamer.logo
-                            });
+                            }).then(notification => clearNotification(streamer.name));
                         }, index * 500);
                     })
                 }
@@ -57,9 +58,6 @@ var execute = function ($, browser) {
             });
         //
     }).catch(response => console.log("Ошибка при обработке запроса на сервере Twitch", response.statusText, response.status));
-    /*Twitch.getFollowingList().then(response => {
-
-    })*/
 
     /**
      * Выполняет запрос на проверку наличия стримов.

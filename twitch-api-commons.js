@@ -20,11 +20,11 @@ var Twitch = (function ($, browser) {
         Channel: class {
             constructor(channel) {
                 if (typeof channel === 'object') {
-                    this.name = channel.channel.name;
-                    this.url  = channel.channel.url;
-                    this.logo = channel.channel.logo;
+                    this.name   = channel.channel.name;
+                    this.url    = channel.channel.url;
+                    this.logo   = channel.channel.logo;
                     this.status = channel.channel.status;
-                    this.isTracked = true;
+                    this.game   = channel.channel.game;
                 }
                 this.isOnline = false;
             }
@@ -47,7 +47,14 @@ var Twitch = (function ($, browser) {
          */
         getFollowingList: function () {
             // магия с промисами ! 
-            return browser.storage.local.get('userName').then(value => $.get('https://api.twitch.tv/kraken/users/' + value.userName + '/follows/channels'));
+            return browser.storage.local.get('userName').then(value => {
+                if (value && value.userName) {
+                    return $.get('https://api.twitch.tv/kraken/users/' + value.userName + '/follows/channels')
+                }
+                return new Promise((resolve, reject) => {
+                    reject('Имя пользователя не определено');
+                });
+            });
         },
 
         /**
