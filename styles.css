@@ -7,6 +7,20 @@ body {
     margin-top: 20px;
 }
 
+.img-ch-logo {
+    width: 50px;
+    height: auto;
+}
+
+a {
+    color: black;
+    
+}
+
+a:hover, a:visited {
+    color: blueviolet;
+}
+
 .q-container {
     display: inline-block;
     padding: 5px;

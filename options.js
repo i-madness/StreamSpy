@@ -11,7 +11,7 @@
         let durationValue = parseInt($('#checkDuration').val());
         let userNameValue = $('#userName').val();
         if (!durationValue || !userNameValue) {
-            console.error('HOW DARE YOU!1!11');
+            console.error('Ошибка: не введёно одно из обязательных полей');
             return;
         }
         browser.storage.local.set({
@@ -34,15 +34,15 @@
                 var isChecked = "checked";
                 isChecked = uncheckedChannels.includes(ch.name) ? "" : "checked";
                 let row = $('<tr/>');
-                $('<td>').html('<div class="q-container">' + ch.name + '</div>').appendTo(row);
+                $('<td>').html('<div class="q-container"><a href="'+'https://twitch.tv/' + ch.name + '" target="_blank"><img src="'+ 
+                    ch.logo +'" class="img-ch-logo"/></a></div>').appendTo(row);
+                $('<td>').html('<div class="q-container">' + '<a href="'+'https://twitch.tv/' + ch.name + '" target="_blank">' + ch.name + '</a></div>').appendTo(row);
                 $('<td>').html('<div class="q-container">' + ch.status + '</div>').appendTo(row);
-                // OH SHI~~
                 $('<td>').html('<div class="q-container">' +
                     '<div class="main" id="' + ch.name + '">' +
-                    '<input type="checkbox" id="hidcheck_' + ch.name + '" class="hidcheck" hidden ' + isChecked + '/>' +
-                    '<label class="capsule" for="hidcheck_' + ch.name + '" id="capsule-id">' +
-                    '<div class="circle"></div><div class="text-signs"><span id="on"></span></div></label></div></div>').appendTo(row);
-                // чота ещё
+                        '<input type="checkbox" id="hidcheck_' + ch.name + '" class="hidcheck" hidden ' + isChecked + '/>' +
+                        '<label class="capsule" for="hidcheck_' + ch.name + '" id="capsule-id">' +
+                        '<div class="circle"></div><div class="text-signs"><span id="on"></span></div></label></div></div>').appendTo(row);
                 $('#followingList').append(row);
             }
         });
@@ -61,13 +61,15 @@
         displayFollowingList();
     });
 
+    // >=================================< Event handlers >=================================<
+
+    // обработка клика по кнопке выбора канала для добавления/исключения из списка непроверяемых каналов
     $('body').on('click', '.main', function (event) {
-        if (event.target.tagName != 'DIV') {
+        if (event.target.tagName != 'DIV') { // обработка случая, когда клик вызывается из неподходящего места
             return;
         }
-        var channelName = $(this).attr('id');//.replace('hidcheck_', '');
+        var channelName = $(this).attr('id');
         for (var i = 0; i < uncheckedChannels.length; i++) {
-            console.log(uncheckedChannels[i]);
             if (uncheckedChannels[i] == channelName) {
                 delete uncheckedChannels[i];
                 return;
@@ -79,6 +81,7 @@
         }
     });
 
+    // по отправке формы сохраняем настройки в browser.storage.local
     $("form").submit(saveOptions);
 
 } ($, browser));
