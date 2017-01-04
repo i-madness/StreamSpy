@@ -30,13 +30,15 @@ var Twitch = (function ($, browser) {
             }
 
             /**
-             * Представление объекта канала в качестве элемента списка онлайн-стримеров, который используется в оповещении
+             * Представление объекта канала в качестве объекта для создания оповещений через browser.notifications.create
              * @returns {Object}
              */
             asNotificationItem() {
                 return {
+                    type: 'basic',
                     title: this.name,
-                    message: this.status
+                    message: this.status,
+                    iconUrl: this.logo
                 }
             }
         },

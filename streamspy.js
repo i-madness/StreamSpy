@@ -41,12 +41,8 @@ var execute = function ($, browser) {
                     // выводим всех онлайн стримеров в качестве оповещений (и больше к ним не возвращаемся)
                     onlineStreamers.forEach((streamer, index) => {
                         setTimeout(() => {
-                            browser.notifications.create(streamer.name, {
-                                type: 'basic',
-                                title: streamer.name,
-                                message: streamer.status,
-                                iconUrl: streamer.logo
-                            }).then(notification => clearNotification(streamer.name));
+                            browser.notifications.create(streamer.name, streamer.asNotificationItem())
+                                                 .then(notification => clearNotification(streamer.name));
                         }, index * 500);
                     })
                 }
@@ -56,7 +52,6 @@ var execute = function ($, browser) {
                 console.log(options);
                 intervalId = setInterval(performCheckingRequest, options.checkDuration);
             });
-        //
     }).catch(response => console.log("Ошибка при обработке запроса на сервере Twitch", response.statusText, response.status));
 
     /**
@@ -66,15 +61,10 @@ var execute = function ($, browser) {
         Twitch.getStreamList(channelsAsString).then(response => {
             var onlineStreamerNames = onlineStreamers.map(s => s.name);
             response.streams.forEach(stream => {
-                //console.log(stream);
                 let ch = new Twitch.Channel(stream);
                 if (!onlineStreamerNames.includes(ch.name) && !uncheckedChannels.includes(ch.name)) {
-                    browser.notifications.create(ch.name, {
-                        type: 'basic',
-                        title: ch.name,
-                        message: ch.status,
-                        iconUrl: ch.logo
-                    }).then(notification => clearNotification(ch.name));
+                    browser.notifications.create(ch.name, ch.asNotificationItem())
+                                         .then(notification => clearNotification(ch.name));
                     onlineStreamers.push(ch);
                 }
             });

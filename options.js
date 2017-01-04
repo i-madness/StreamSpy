@@ -2,6 +2,7 @@
     'use strict';
     var channels;
     var uncheckedChannels;
+    let runtime = browser.runtime;
 
     /**
      * Сохранение настроек
@@ -20,7 +21,11 @@
             uncheckedChannels: uncheckedChannels
         });
 
-        displayFollowingList();
+        if (runtime.reload) {
+            runtime.reload();
+        } else {
+            displayFollowingList();
+        }
     }
 
     /**
