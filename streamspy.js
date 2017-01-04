@@ -10,18 +10,25 @@ var execute = function ($, browser) {
     let uncheckedChannels;
     let channelsAsString;
     let onlineStreamers = [];
-    let notificationSound = new Audio('/audio/notify3.mp3'); // TODO выбрать нужный вариант из хранилища, должно быть в настройках.
+    let soundMap = {
+        'none' : {play:function(){}},
+        'notify-1' : new Audio('/audio/notify1.mp3'),
+        'notify-2' : new Audio('/audio/notify2.mp3'),
+        'notify-3' : new Audio('/audio/notify3.mp3')
+    };
+    let notificationSound;
 
     browser.notifications.onClicked.addListener(function (notificationId) {
         browser.tabs.create({ url: 'https://twitch.tv/' + notificationId });
     });
 
     // избегаем большой кучи вложенных обещаний
-    let promises = [ Twitch.getFollowingList(), fetchListOfUnchekedChannels() ]; 
+    let promises = [ Twitch.getFollowingList(), fetchListOfUnchekedChannels(), fetchSoundSettings()]; 
 
     Promise.all(promises).then(values => {
         let response = values[0];
         uncheckedChannels = values[1].uncheckedChannels;
+        notificationSound = values[2].sound ? soundMap[values[2].sound] : soundMap['none'];
         channels = response.follows.map(ch => new Twitch.Channel(ch));
         channelNames = channels.map(ch => ch.name);
         channelsAsString = channelNames.join(',');
@@ -93,6 +100,10 @@ var execute = function ($, browser) {
      */
     function fetchListOfUnchekedChannels() {
         return browser.storage.local.get('uncheckedChannels');
+    }
+
+    function fetchSoundSettings() {
+        return browser.storage.local.get('sound');
     }
 }
 execute(jQuery, browser);

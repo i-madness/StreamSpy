@@ -3,6 +3,12 @@
     var channels;
     var uncheckedChannels;
     let runtime = browser.runtime;
+    let selectedSound;
+    let soundMap = {
+        'notify-1' : new Audio('/audio/notify1.mp3'),
+        'notify-2' : new Audio('/audio/notify2.mp3'),
+        'notify-3' : new Audio('/audio/notify3.mp3')
+    };
 
     /**
      * Сохранение настроек
@@ -18,7 +24,8 @@
         browser.storage.local.set({
             checkDuration: durationValue*1000,
             userName: userNameValue,
-            uncheckedChannels: uncheckedChannels
+            uncheckedChannels: uncheckedChannels,
+            sound: selectedSound
         });
 
         if (runtime.reload) {
@@ -72,9 +79,22 @@
         displayFollowingList();
     });
 
+    browser.storage.local.get('sound').then(result => {
+        if (result.sound) {
+            $('#notify-sound-list option[value=' + result.sound + ']').attr('selected', 'selected');
+        }
+    });
+
     // >=================================< Event handlers >=================================<
 
     $(document).ready(function () {
+        $('#notify-sound-list').change(function (event) {
+            selectedSound = $('#notify-sound-list option:selected').val();
+            if (selectedSound != 'none') {
+                soundMap[selectedSound].play();
+            }
+        });
+
         $('body').on('click', '#check-name', function (event) {
             let response = $.get('https://api.twitch.tv/kraken/users/' + $('#userName').val());
             response.then(r => {
