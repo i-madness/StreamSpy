@@ -10,6 +10,7 @@ var execute = function ($, browser) {
     let uncheckedChannels;
     let channelsAsString;
     let onlineStreamers = [];
+    let notificationSound = new Audio('/audio/notify3.mp3'); // TODO выбрать нужный вариант из хранилища, должно быть в настройках.
 
     browser.notifications.onClicked.addListener(function (notificationId) {
         browser.tabs.create({ url: 'https://twitch.tv/' + notificationId });
@@ -38,6 +39,7 @@ var execute = function ($, browser) {
                         }
                     }
                     console.debug('streamers online', onlineStreamers)
+                    onlineStreamers.length && notificationSound.play();
                     // выводим всех онлайн стримеров в качестве оповещений (и больше к ним не возвращаемся)
                     onlineStreamers.forEach((streamer, index) => {
                         setTimeout(() => {
@@ -52,7 +54,7 @@ var execute = function ($, browser) {
                 console.log(options);
                 intervalId = setInterval(performCheckingRequest, options.checkDuration);
             });
-    }).catch(response => console.log("Ошибка при обработке запроса на сервере Twitch", response.statusText, response.status));
+    }).catch(response => console.log("Ошибка при обработке запроса на сервере Twitch", response));
 
     /**
      * Выполняет запрос на проверку наличия стримов.
@@ -63,6 +65,7 @@ var execute = function ($, browser) {
             response.streams.forEach(stream => {
                 let ch = new Twitch.Channel(stream);
                 if (!onlineStreamerNames.includes(ch.name) && !uncheckedChannels.includes(ch.name)) {
+                    notificationSound.play();
                     browser.notifications.create(ch.name, ch.asNotificationItem())
                                          .then(notification => clearNotification(ch.name));
                     onlineStreamers.push(ch);
