@@ -16,7 +16,7 @@
             return;
         }
         browser.storage.local.set({
-            checkDuration: durationValue,
+            checkDuration: durationValue*1000,
             userName: userNameValue,
             uncheckedChannels: uncheckedChannels
         });
@@ -34,20 +34,26 @@
     function displayFollowingList() {
         Twitch.getFollowingList().then(response => {
             $("#followingList").empty();
+            let headersRow = $('<tr/>');
+            $('<td>').html('').appendTo(headersRow);
+            $('<td>').html('КАНАЛ').appendTo(headersRow);
+            $('<td>').html('ИГРА').appendTo(headersRow);
+            $('<td>').html('ПОКАЗ ОПОВЕЩЕНИЙ').appendTo(headersRow);
+            $('#followingList').append(headersRow);
             channels = response.follows.map(ch => new Twitch.Channel(ch));
             for (let ch of channels) {
                 var isChecked = "checked";
                 isChecked = uncheckedChannels.includes(ch.name) ? "" : "checked";
                 let row = $('<tr/>');
-                $('<td>').html('<div class="q-container"><a href="'+'https://twitch.tv/' + ch.name + '" target="_blank"><img src="'+ 
-                    ch.logo +'" class="img-ch-logo"/></a></div>').appendTo(row);
-                $('<td>').html('<div class="q-container">' + '<a href="'+'https://twitch.tv/' + ch.name + '" target="_blank">' + ch.name + '</a></div>').appendTo(row);
+                $('<td>').html('<div class="q-container"><a href="' + 'https://twitch.tv/' + ch.name + '" target="_blank"><img src="' +
+                    ch.logo + '" class="img-ch-logo"/></a></div>').appendTo(row);
+                $('<td>').html('<div class="q-container">' + '<a href="' + 'https://twitch.tv/' + ch.name + '" target="_blank">' + ch.name + '</a></div>').appendTo(row);
                 $('<td>').html('<div class="q-container">' + ch.game + '</div>').appendTo(row);
                 $('<td>').html('<div class="q-container">' +
                     '<div class="main" id="' + ch.name + '">' +
-                        '<input type="checkbox" id="hidcheck_' + ch.name + '" class="hidcheck" hidden ' + isChecked + '/>' +
-                        '<label class="capsule" for="hidcheck_' + ch.name + '" id="capsule-id">' +
-                        '<div class="circle"></div><div class="text-signs"><span id="on"></span></div></label></div></div>').appendTo(row);
+                    '<input type="checkbox" id="hidcheck_' + ch.name + '" class="hidcheck" hidden ' + isChecked + '/>' +
+                    '<label class="capsule" for="hidcheck_' + ch.name + '" id="capsule-id">' +
+                    '<div class="circle"></div><div class="text-signs"><span id="on"></span></div></label></div></div>').appendTo(row);
                 $('#followingList').append(row);
             }
         });
@@ -58,7 +64,7 @@
     });
 
     browser.storage.local.get('checkDuration').then(result => {
-        $('#checkDuration').val(result.checkDuration);
+        $('#checkDuration').val(result.checkDuration/1000);
     });
 
     browser.storage.local.get('uncheckedChannels').then(result => {
@@ -68,25 +74,38 @@
 
     // >=================================< Event handlers >=================================<
 
-    // обработка клика по кнопке выбора канала для добавления/исключения из списка непроверяемых каналов
-    $('body').on('click', '.main', function (event) {
-        if (event.target.tagName != 'DIV') { // обработка случая, когда клик вызывается из неподходящего места
-            return;
-        }
-        var channelName = $(this).attr('id');
-        for (var i = 0; i < uncheckedChannels.length; i++) {
-            if (uncheckedChannels[i] == channelName) {
-                delete uncheckedChannels[i];
+    $(document).ready(function () {
+        $('body').on('click', '#check-name', function (event) {
+            let response = $.get('https://api.twitch.tv/kraken/users/' + $('#userName').val());
+            response.then(r => {
+                $('#errorText').hide();
+                $('#successText').show();
+            }).catch(r => {
+                $('#errorText').show();
+                $('#successText').hide();
+            });
+        });
+
+        // обработка клика по кнопке выбора канала для добавления/исключения из списка непроверяемых каналов
+        $('body').on('click', '.main', function (event) {
+            if (event.target.tagName != 'DIV') { // обработка случая, когда клик вызывается из неподходящего места
                 return;
             }
-        }
-        if (!uncheckedChannels.length || !uncheckedChannels.includes(channelName)) {
-            uncheckedChannels.push(channelName);
-            return;
-        }
+            var channelName = $(this).attr('id');
+            for (var i = 0; i < uncheckedChannels.length; i++) {
+                if (uncheckedChannels[i] == channelName) {
+                    delete uncheckedChannels[i];
+                    return;
+                }
+            }
+            if (!uncheckedChannels.length || !uncheckedChannels.includes(channelName)) {
+                uncheckedChannels.push(channelName);
+                return;
+            }
+        });
+
+        // по отправке формы сохраняем настройки в browser.storage.local
+        $("form").submit(saveOptions);
     });
 
-    // по отправке формы сохраняем настройки в browser.storage.local
-    $("form").submit(saveOptions);
-
-} ($, browser));
+} (jQuery, browser));

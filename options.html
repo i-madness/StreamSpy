@@ -16,11 +16,14 @@
                 </td>
                 <td>
                     <input type="text" id="userName">
+                    <button type="button" id="check-name" class="btn-check-name">Проверить имя</button>
+                    <div id="errorText" style="color:red; display: none;">Некорректное имя</div>
+                    <div id="successText" style="color: forestgreen; display: none;">Имя корректно</div>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <label>Интервал проверки (мс.)*:</label>
+                    <label>Интервал проверки (сек)*:</label>
                 </td>
                 <td>
                     <input type="text" id="checkDuration">
