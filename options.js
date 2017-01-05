@@ -98,11 +98,16 @@
         $('body').on('click', '#check-name', function (event) {
             let response = $.get('https://api.twitch.tv/kraken/users/' + $('#userName').val());
             response.then(r => {
-                $('#errorText').hide();
-                $('#successText').show();
+                $('#userName').removeClass('field-error');
+                $('#name-validatation-message').addClass('msg-success');
+                $('#name-validatation-message').html('Пользователь найден');
+                $('#name-validatation-message').show();
+                setTimeout(() => $('#name-validatation-message').fadeOut(300), 3000);
             }).catch(r => {
-                $('#errorText').show();
-                $('#successText').hide();
+                $('#userName').addClass('field-error');
+                $('#name-validatation-message').removeClass('msg-success');
+                $('#name-validatation-message').html('Пользователя с данным именем не существует');
+                $('#name-validatation-message').show();
             });
         });
 

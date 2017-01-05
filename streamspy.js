@@ -93,7 +93,7 @@ var execute = function ($, browser) {
     function clearNotification(streamerName) {
         setTimeout(() => browser.notifications.clear(streamerName), 3000);
     }
-
+    
     /**
      * Достаёт из local storage список непроверяемых каналов
      * @returns {Promise}
