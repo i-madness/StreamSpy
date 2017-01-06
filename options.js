@@ -66,6 +66,18 @@
         });
     }
 
+    function checkFields() {
+        let durationValue = parseInt($('#checkDuration').val());
+        let userNameValue = $('#userName').val();
+        if (!durationValue || !userNameValue) {
+            $('#saveOptions').prop('disabled', true);
+            return false;
+        } else {
+            $('#saveOptions').prop('disabled', false);
+        }
+        return true;
+    }
+
     browser.storage.local.get('userName').then(result => {
         $('#userName').val(result.userName);
     });
@@ -102,13 +114,33 @@
                 $('#name-validatation-message').addClass('msg-success');
                 $('#name-validatation-message').html('Пользователь найден');
                 $('#name-validatation-message').show();
+                if (checkFields()) {
+                    $('#saveOptions').prop('disabled', false);
+                }
                 setTimeout(() => $('#name-validatation-message').fadeOut(300), 3000);
             }).catch(r => {
                 $('#userName').addClass('field-error');
                 $('#name-validatation-message').removeClass('msg-success');
                 $('#name-validatation-message').html('Пользователя с данным именем не существует');
                 $('#name-validatation-message').show();
+                $('#saveOptions').prop('disabled', true);
             });
+        });
+
+        $('body').on('focusout', '#userName', function (event) {
+            if (!checkFields()) {
+                $('#userName').addClass('field-error');
+            } else {
+                $('#userName').removeClass('field-error');
+            }
+        });
+
+        $('body').on('focusout', '#checkDuration', function (event) {
+            if (!checkFields()) {
+                $('#checkDuration').addClass('field-error');
+            } else {
+                $('#checkDuration').removeClass('field-error');
+            }
         });
 
         // обработка клика по кнопке выбора канала для добавления/исключения из списка непроверяемых каналов
