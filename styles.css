@@ -29,7 +29,28 @@ body {
 	top:1px;
 }
 
-        
+.settings-alarm {
+    display: none;
+    padding: 15px;
+    width: 50%;
+    text-align: center;
+    margin-bottom: 10px;
+    margin-left: 5%;
+    border-radius: 20px;
+}
+
+.alarm-success {
+    background-color: #90ee90;
+    border-color: forestgreen;
+    color: forestgreen;
+}        
+
+.alarm-error {
+    background-color: #ff9999;
+    border-color: #ff2b2b;
+    color: #ff2b2b;
+}        
+
 
 #name-validatation-message {
     color: red;

@@ -1,7 +1,8 @@
 (function ($, browser) {
     'use strict';
-    var channels;
-    var uncheckedChannels;
+    let channels;
+    let uncheckedChannels;
+    let userNameConfirmed = false;
     let runtime = browser.runtime;
     let selectedSound;
     let soundMap = {
@@ -17,8 +18,7 @@
         e.preventDefault();
         let durationValue = parseInt($('#checkDuration').val());
         let userNameValue = $('#userName').val();
-        if (!durationValue || !userNameValue) {
-            console.error('Ошибка: не введёно одно из обязательных полей');
+        if (!checkFields()) {
             return;
         }
         browser.storage.local.set({
@@ -26,13 +26,15 @@
             userName: userNameValue,
             uncheckedChannels: uncheckedChannels,
             sound: selectedSound
+        }).then(() => {
+            $('.settings-alarm').html('Настройки успешно сохранены').show().removeClass('alarm-error').addClass('alarm-success');
+            setTimeout(() => $('.settings-alarm').fadeOut(200), 3000)
+            if (runtime.reload) {
+                runtime.reload();
+            } else {
+                displayFollowingList();
+            }
         });
-
-        if (runtime.reload) {
-            runtime.reload();
-        } else {
-            displayFollowingList();
-        }
     }
 
     /**
@@ -69,12 +71,17 @@
     function checkFields() {
         let durationValue = parseInt($('#checkDuration').val());
         let userNameValue = $('#userName').val();
-        if (!durationValue || !userNameValue) {
+        if (!durationValue) {
             $('#saveOptions').prop('disabled', true);
+            $('.settings-alarm').html('Ошибка: значение интервала времени имеет неверный формат').show().removeClass('alarm-success').addClass('alarm-error');
             return false;
-        } else {
-            $('#saveOptions').prop('disabled', false);
+        } 
+        if (!userNameValue || /\W/.test(userNameValue)) {
+            $('#saveOptions').prop('disabled', true);
+            $('.settings-alarm').html('Ошибка: вы должны ввести имя пользователя').show().removeClass('alarm-success').addClass('alarm-error');
         }
+
+        $('#saveOptions').prop('disabled', false);
         return true;
     }
 
@@ -92,7 +99,7 @@
     });
 
     browser.storage.local.get('sound').then(result => {
-        if (result.sound) {
+        if (result.sound && typeof result.sound === 'string') {
             $('#notify-sound-list option[value=' + result.sound + ']').attr('selected', 'selected');
         }
     });

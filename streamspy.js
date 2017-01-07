@@ -11,10 +11,12 @@ var execute = function ($, browser) {
     let channelsAsString;
     let onlineStreamers = [];
     let soundMap = {
-        'none' : {play:function(){}},
         'notify-1' : new Audio('/audio/notify1.mp3'),
         'notify-2' : new Audio('/audio/notify2.mp3'),
-        'notify-3' : new Audio('/audio/notify3.mp3')
+        'notify-3' : new Audio('/audio/notify3.mp3'),
+        'none' :  {
+            play : function() {} // заглушка для якобы наследника интерфейса Audio 
+        }
     };
     let notificationSound;
 
@@ -23,12 +25,12 @@ var execute = function ($, browser) {
     });
 
     // избегаем большой кучи вложенных обещаний
-    let promises = [ Twitch.getFollowingList(), fetchListOfUnchekedChannels(), fetchSoundSettings()]; 
+    let promises = [ Twitch.getFollowingList(), fetchListOfUnchekedChannels(), fetchSoundSettings() ]; 
 
     Promise.all(promises).then(values => {
         let response = values[0];
         uncheckedChannels = values[1].uncheckedChannels;
-        notificationSound = values[2].sound ? soundMap[values[2].sound] : soundMap['none'];
+        notificationSound = values[2].sound && typeof values[2].sound === 'string' ? soundMap[values[2].sound] : soundMap['none'];
         channels = response.follows.map(ch => new Twitch.Channel(ch));
         channelNames = channels.map(ch => ch.name);
         channelsAsString = channelNames.join(',');
@@ -50,8 +52,7 @@ var execute = function ($, browser) {
                     // выводим всех онлайн стримеров в качестве оповещений (и больше к ним не возвращаемся)
                     onlineStreamers.forEach((streamer, index) => {
                         setTimeout(() => {
-                            browser.notifications.create(streamer.name, streamer.asNotificationItem())
-                                                 .then(notification => clearNotification(streamer.name));
+                            browser.notifications.create(streamer.name, streamer.asNotificationItem());
                         }, index * 500);
                     })
                 }
