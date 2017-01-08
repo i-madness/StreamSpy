@@ -44,6 +44,14 @@ var Twitch = (function ($, browser) {
         },
 
         /**
+         * Проверка существования данного пользователя на Twitch
+         * @returns {jqXHR}
+         */
+        checkUserExists: function(userName) {
+            return $.get('https://api.twitch.tv/kraken/users/' + userName);
+        },
+
+        /**
          * Получает список из подписок текущего пользователя
          * @returns {jqXHR}
          */

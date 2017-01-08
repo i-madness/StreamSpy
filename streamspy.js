@@ -15,7 +15,7 @@ var execute = function ($, browser) {
         'notify-2' : new Audio('/audio/notify2.mp3'),
         'notify-3' : new Audio('/audio/notify3.mp3'),
         'none' :  {
-            play : function() {} // заглушка для якобы наследника интерфейса Audio 
+            play : () => {} // заглушка для якобы наследника интерфейса Audio 
         }
     };
     let notificationSound;
@@ -30,7 +30,9 @@ var execute = function ($, browser) {
     Promise.all(promises).then(values => {
         let response = values[0];
         uncheckedChannels = values[1].uncheckedChannels;
+        // доставаемый из хранилища sound может оказаться пустым объектом, если значения нет, так что учитываем данный случай
         notificationSound = values[2].sound && typeof values[2].sound === 'string' ? soundMap[values[2].sound] : soundMap['none'];
+        
         channels = response.follows.map(ch => new Twitch.Channel(ch));
         channelNames = channels.map(ch => ch.name);
         channelsAsString = channelNames.join(',');

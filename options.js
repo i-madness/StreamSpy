@@ -1,3 +1,6 @@
+/**
+ * Функционал страницы настроек
+ */
 (function ($, browser) {
     'use strict';
     let channels;
@@ -68,6 +71,9 @@
         });
     }
 
+    /**
+     * Проверка корректности значений в input'ах, ввод валидационных сообщений
+     */
     function checkFields() {
         let durationValue = parseInt($('#checkDuration').val());
         let userNameValue = $('#userName').val();
@@ -76,12 +82,13 @@
             $('.settings-alarm').html('Ошибка: значение интервала времени имеет неверный формат').show().removeClass('alarm-success').addClass('alarm-error');
             return false;
         } 
-        if (!userNameValue || /\W/.test(userNameValue)) {
+        if (!userNameValue || /\W/.test(userNameValue)) { // проверка строки на Whitespace 
             $('#saveOptions').prop('disabled', true);
             $('.settings-alarm').html('Ошибка: вы должны ввести имя пользователя').show().removeClass('alarm-success').addClass('alarm-error');
+            return false;
         }
-
         $('#saveOptions').prop('disabled', false);
+        $('.settings-alarm').fadeOut(100).removeClass('alarm-error');
         return true;
     }
 
@@ -90,7 +97,9 @@
     });
 
     browser.storage.local.get('checkDuration').then(result => {
-        $('#checkDuration').val(result.checkDuration/1000);
+        if (result.checkDuration) {
+            $('#checkDuration').val(result.checkDuration/1000);
+        }       
     });
 
     browser.storage.local.get('uncheckedChannels').then(result => {
@@ -115,8 +124,7 @@
         });
 
         $('body').on('click', '#check-name', function (event) {
-            let response = $.get('https://api.twitch.tv/kraken/users/' + $('#userName').val());
-            response.then(r => {
+            Twitch.checkUserExists( $('#userName').val() ).then(r => {
                 $('#userName').removeClass('field-error');
                 $('#name-validatation-message').addClass('msg-success');
                 $('#name-validatation-message').html('Пользователь найден');
