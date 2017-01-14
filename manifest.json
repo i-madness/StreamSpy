@@ -1,11 +1,13 @@
 ﻿{
 
   "manifest_version": 2,
-  "author": "Валерий Романов, Никита Чеботарёв",
+  "author": ["Валерий Романов", "Никита Чеботарёв"],
   "name": "Stream Spy",
   "version": "1.0",
 
-  "description": "Twitch stream notification extension for browsers with WebExtensions support",
+  "description": "Расширение для уведомлений о стримах на Twitch.tv",
+
+  "homepage_url" : "https://github.com/i-madness/StreamSpy",
 
   "background": {
     "scripts": ["jquery-3.1.1.min.js", "twitch-api-commons.js", "streamspy.js"]
@@ -15,6 +17,11 @@
     "page": "options.html"
   },
 
-  "permissions": ["notifications", "storage"]
+  "permissions": ["notifications", "storage"],
+
+  "icons" : {
+      "48": "icons/logo-48.png",
+      "96": "icons/logo-96.png"
+  }
 
 }

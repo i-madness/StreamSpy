@@ -5,7 +5,6 @@
     'use strict';
     let channels;
     let uncheckedChannels;
-    let userNameConfirmed = false;
     let runtime = browser.runtime;
     let selectedSound;
     let soundMap = {
@@ -30,7 +29,8 @@
             uncheckedChannels: uncheckedChannels,
             sound: selectedSound
         }).then(() => {
-            $('.settings-alarm').html('Настройки успешно сохранены').show().removeClass('alarm-error').addClass('alarm-success');
+            let browserRebootNote = runtime.reload ? "" : ". Пожалуйста, перезапустите браузер для вступления настроек в силу"
+            $('.settings-alarm').html('Настройки успешно сохранены' + browserRebootNote).show().removeClass('alarm-error').addClass('alarm-success');
             setTimeout(() => $('.settings-alarm').fadeOut(200), 3000)
             if (runtime.reload) {
                 runtime.reload();

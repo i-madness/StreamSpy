@@ -45,7 +45,7 @@ var Twitch = (function ($, browser) {
 
         /**
          * Проверка существования данного пользователя на Twitch
-         * @returns {jqXHR}
+         * @returns {jqXHR|Promise}
          */
         checkUserExists: function(userName) {
             return $.get('https://api.twitch.tv/kraken/users/' + userName);
@@ -53,7 +53,7 @@ var Twitch = (function ($, browser) {
 
         /**
          * Получает список из подписок текущего пользователя
-         * @returns {jqXHR}
+         * @returns {jqXHR|Promise}
          */
         getFollowingList: function () {
             // магия с промисами ! 
@@ -70,7 +70,7 @@ var Twitch = (function ($, browser) {
         /**
          * Получает список стримов
          * @param channels {String} каналы, для которых хотим получить стримы (через ',')
-         * @returns {jqXHR} 
+         * @returns {jqXHR|Promise} 
          */
         getStreamList: function (channels) {
             return $.get('https://api.twitch.tv/kraken/streams', { channel: channels });
